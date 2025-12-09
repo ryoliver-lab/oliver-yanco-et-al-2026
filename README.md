@@ -1,4 +1,4 @@
-# oliver-yanco-et-al-2025
+# oliver-yanco-et-al-2026
 
 Data analysis for publication: "Interacting effects of human presence and landscape modification on birds and mammals"
 
@@ -10,7 +10,7 @@ Sustainable human-wildlife coexistence requires a mechanistic understanding of t
 ### Repository Structure
 
 ```
-/oliver-yanco-et-al-2025 
+/oliver-yanco-et-al-2026 
   |  
   +--/src                 # Source code directory
   |   |
