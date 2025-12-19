@@ -29,8 +29,8 @@ if(interactive()) {
   
   .wd <- getwd()
   
-  .datP <- file.path(.wd,'out/single_species_models')
-  .outPF <- file.path(.wd,'figs/area_fig.png')
+  .datP <- file.path(.wd,'out')
+  .outPF <- file.path(.wd,'out')
   
   # vector of probabilities foer conditional estimates
   prob_vec <- c(0.2,0.8)
@@ -116,10 +116,10 @@ for(i in 1:length(int_modlist_full)){
     intmod <- out$model # store as object
     sp <- out$species # extract sp
     
-    fe <- fixef(intmod) # get fixed effects
+    fe <- parameters(intmod) # get fixed effects
     re <- posterior_summary(intmod, variable = c("sd_grp__Intercept", "sigma")) # get random effects
-    
-    if(fe["sg_norm:ghm_scale", "Q2.5"] < 0 & 0 < fe["sg_norm:ghm_scale", "Q97.5"]){ # if the interaction effect overlaps 0...
+
+    if(fe$pd[fe$Parameter=="b_sg_norm:ghm_scale"] < 0.95 & fe$pd[fe$Parameter=="b_sg_norm:ghm_scale"] > 0.05){ # if the interacton effect is non-sig...
       
       #... load the additive model instead.
       if(add_modlist_full[i] != "NULL"){
@@ -131,11 +131,11 @@ for(i in 1:length(int_modlist_full)){
         addmod <- out$model
         sp <- out$species
         out_add <- out
-        fe_add <- fixef(out_add$model) #get fixed effects
+        fe_add <- parameters(out_add$model) #get fixed effects
         
         # get effects significance
-        add_sg_sig <- ifelse(fe_add["sg_norm", "Q2.5"] < 0 & 0 < fe_add["sg_norm", "Q97.5"], "non-sig", "sig")
-        add_ghm_sig <- ifelse(fe_add["ghm_scale", "Q2.5"] < 0 & 0 < fe_add["ghm_scale", "Q97.5"], "non-sig", "sig")
+        add_sg_sig <- ifelse(fe_add$pd[fe_add$Parameter=="b_sg_norm"] < 0.95 & fe_add$pd[fe_add$Parameter=="b_sg_norm"] > 0.05, "non-sig", "sig")
+        add_ghm_sig <- ifelse(fe_add$pd[fe_add$Parameter=="b_ghm_scale"] < 0.95 & fe_add$pd[fe_add$Parameter=="b_ghm_scale"] > 0.05, "non-sig", "sig")
         
         # get observed quantiles of ghm to set "low" and "high" human mod
         ghmq <- quantile(out$data$ghm_scale, probs = prob_vec, na.rm = T)
@@ -260,12 +260,12 @@ for(i in 1:length(int_modlist_full)){
       addmod <- out$model
       sp <- out$species
       out_add <- out
-      fe_add <- fixef(out_add$model) #get fixed effects
+      fe_add <- parameters(out_add$model) #get fixed effects
       
       # get effects significance
-      add_sg_sig <- ifelse(fe_add["sg_norm", "Q2.5"] < 0 & 0 < fe_add["sg_norm", "Q97.5"], "non-sig", "sig")
-      add_ghm_sig <- ifelse(fe_add["ghm_scale", "Q2.5"] < 0 & 0 < fe_add["ghm_scale", "Q97.5"], "non-sig", "sig")
-      
+      add_sg_sig <- ifelse(fe_add$pd[fe_add$Parameter=="b_sg_norm"] < 0.95 & fe_add$pd[fe_add$Parameter=="b_sg_norm"] > 0.05, "non-sig", "sig")
+      add_ghm_sig <- ifelse(fe_add$pd[fe_add$Parameter=="b_ghm_scale"] < 0.95 & fe_add$pd[fe_add$Parameter=="b_ghm_scale"] > 0.05, "non-sig", "sig")
+        
       # get observed quantiles of ghm to set "low" and "high" human mod
       ghmq <- quantile(out$data$ghm_scale, probs = prob_vec, na.rm = T)
       sgq <- quantile(out$data$sg_norm, probs = prob_vec, na.rm = T)
@@ -325,7 +325,7 @@ for(i in 1:length(int_modlist_full)){
 #-- Predicted Effects --#
 pred_out_df <- do.call("bind_rows", pred_out)
 write_csv(x = pred_out_df, file = file.path(.outPF, glue("niche_change_prediction_{Sys.Date()}.csv")))
-save(pred_out, file = file.path(.outPF, "area_change_predictions.rdata"))
+#save(pred_out, file = file.path(.outPF, "area_change_predictions.rdata"))
 
 #-- Marginal Effects of SG --#
 sg_es_df <- do.call("bind_rows", sg_effects_out)

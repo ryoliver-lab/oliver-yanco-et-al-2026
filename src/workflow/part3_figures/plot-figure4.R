@@ -8,8 +8,8 @@ library(janitor)
 
 rm(list = ls())
 .wd <- getwd()
-.datPF <- file.path(.wd, "out/covid_results")
-.outPF <- file.path(.wd, "out/figures")
+.datPF <- file.path(.wd, "out/osf")
+.outPF <- file.path(.wd, "out/osf")
 
 ### select species to include in figure 4
 
@@ -30,7 +30,7 @@ niche_sg <- read_model_results("niche_sg_effects_2025-06-24.csv", "niche_sg")
 species_list <- read_csv(file.path(.wd, "out/species_list.csv"))
 
 ## area results
-pred_dat <- read_csv(file.path(.datPF, "area_change_prediction_2025-06-24.csv"))
+pred_dat <- read_csv(file.path(.datPF, "area_change_prediction_2025-12-18.csv"))
 
 # create data frame of prediction results
 spl <- unique(pred_dat$species)
@@ -77,7 +77,7 @@ area_diff_df <- area_diff_df %>%
   filter(species != "Numenius americanus")
 
 ## niche results
-pred_dat <- read_csv(file.path(.datPF, "niche_change_prediction_2025-06-24.csv"))
+pred_dat <- read_csv(file.path(.datPF, "niche_change_prediction_2025-12-18.csv"))
 
 spl <- unique(pred_dat$species)
 
@@ -115,7 +115,7 @@ niche_diff_non_sig <- niche_diff_df %>%
 niche_diff_df <- niche_diff_df %>% 
   filter(tot_sig == "sig") %>% 
   left_join(., species_list, by = c("species" = "scientific_name")) %>%
-  filter(species != "Numenius americanus")
+  filter(species != "Numenius americanus") # keep curlew out
 
 # bind data by order of magnitude
 area_diff <- area_diff_df %>%
@@ -162,7 +162,7 @@ p1 <- ggplot(data = area_diff) +
     axis.text = element_text(size = 7, family = "Helvetica"),
     axis.title = element_text(size = 7, family = "Helvetica"),
     axis.ticks.x = element_line(color = "#4a4e4d")) +
-  scale_y_continuous(breaks = seq(0,10, by = 2), expand = expansion(mult = c(0.05, 0.05))) +  
+  scale_y_continuous(breaks = seq(0,12, by = 2), expand = expansion(mult = c(0.05, 0.05))) +  
   scale_x_continuous(breaks = seq(-6,6, by = 1),
                      labels = c("-10K", "-1K", "-100", "-10", "-1", "-0.1", "0",
                                 "0.1","1", "10", "100", "1K", "10K")) +
@@ -196,46 +196,75 @@ p2 <- ggplot(data = niche_diff) +
 
 # export figure 4
 p <- p1/p2 +
-  plot_layout(heights = c(2,1))
+  plot_layout(heights = c(1.85,1.15))
 
 ggsave(file.path(.outPF, "fig4.pdf"), height = 70, width = 90, units = "mm")
 
 ### data summaries
-# print(paste0("non-significant area size: ",n_distinct(area_diff_non_sig$species), " species"))
-# print(paste0("non-significant niche size: ",n_distinct(niche_diff_non_sig$species), " species"))
-# 
-# range(area_diff_df$percent_change)
-# range(niche_diff_df$percent_change)
-# 
-# 
-# area_diff_df_mammals <- area_diff_df %>%
-#   filter(taxa == "mammals")
-#   
-# 
-# median(area_diff_df_mammals$percent_change)
-# range(area_diff_df_mammals$diff_km)
-# 
-# area_diff_df_birds <- area_diff_df %>%
-#   filter(taxa == "birds") 
-# 
-# median(area_diff_df_birds$percent_change)
-# range(area_diff_df_birds$diff_km)
-# 
-# 
-# median(niche_diff_df$percent_change)
-# mean(niche_diff_df$percent_change)
-# range(niche_diff_df$percent_change)
-# 
-# niche_diff_df_mammals <- niche_diff_df %>%
-#   filter(taxa == "mammals")
-# 
-# median(niche_diff_df_mammals$percent_change)
-# mean(niche_diff_df_mammals$percent_change)
-# range(niche_diff_df_mammals$percent_change)
-# 
-# niche_diff_df_birds <- niche_diff_df %>%
-#   filter(taxa == "birds") 
-# 
-# median(niche_diff_df_birds$percent_change)
-# mean(niche_diff_df_birds$percent_change)
-# range(niche_diff_df_birds$percent_change)
+
+# number spp with non-sig changes in A & N
+ns_area <- paste0("Number species with NON-SIG area change: ", n_distinct(area_diff_non_sig$species), " species")
+ns_niche <- paste0("Number species with NON-SIG niche change: ", n_distinct(niche_diff_non_sig$species), " species")
+
+# for all sig spp, range of perc change in A & N
+area_percent_change_range <- paste0("Area percent change RANGE ALL SIG SPECIES: ", paste(range(area_diff_df$percent_change), collapse = " – "))
+niche_percent_change_range <- paste0("Niche percent change RANGE ALL SIG SPECIES: ", paste(range(niche_diff_df$percent_change), collapse = " – "))
+
+### --- area sig mammals --- ###
+area_diff_df_mammals <- area_diff_df %>%
+  filter(taxa == "mammals")
+  
+# area sig mammals median & range
+area_percent_change_median_mammals <- paste0("Area percent change MEDIAN MAMMALS: ", median(area_diff_df_mammals$percent_change))
+area_diff_km_range_mammals <- paste0("Area diff (km) RANGE MAMMALS: ", paste(range(area_diff_df_mammals$diff_km), collapse = " – "))
+
+### --- area sig birds --- ###
+area_diff_df_birds <- area_diff_df %>%
+  filter(taxa == "birds") 
+
+# area sig birds median & range
+area_percent_change_median_birds <- paste0("Area percent change MEDIAN BIRDS: ", median(area_diff_df_birds$percent_change))
+area_diff_km_range_birds <- paste0("Area diff (km) RANGE BIRDS: ", paste(range(area_diff_df_birds$diff_km), collapse = " – "))
+
+# niche sig median & range & mean
+niche_percent_change_median_all <- paste0("Niche percent change MEDIAN ALL SIG: ", median(niche_diff_df$percent_change))
+niche_percent_change_mean_all <- paste0("Niche percent change MEAN ALL SIG: ", mean(niche_diff_df$percent_change))
+niche_percent_change_range_range_all <- paste0("Niche percent change RANGE ALL SIG: ", paste(range(niche_diff_df$percent_change), collapse = " – "))
+
+### --- niche sig mammals --- ###
+niche_diff_df_mammals <- niche_diff_df %>%
+  filter(taxa == "mammals")
+
+# niche sig mammals median & range & mean
+niche_percent_change_median_mammals <- paste0("Niche percent change MEDIAN MAMMALS: ", median(niche_diff_df_mammals$percent_change))
+niche_percent_change_mean_mammals <- paste0("Niche percent change MEAN MAMMALS: ", mean(niche_diff_df_mammals$percent_change))
+niche_percent_change_range_mammals <- paste0("Niche percent change RANGE MAMMALS: ", paste(range(niche_diff_df_mammals$percent_change), collapse = " – "))
+
+## --- niche sig birds --- ###
+niche_diff_df_birds <- niche_diff_df %>%
+  filter(taxa == "birds") 
+
+# niche sig birds median & range & mean
+niche_percent_change_median_birds <- paste0("Niche percent change MEDIAN BIRDS: ", median(niche_diff_df_birds$percent_change))
+niche_percent_change_mean_birds <- paste0("Niche percent change MEAN BIRDS: ",mean(niche_diff_df_birds$percent_change))
+niche_change_range_range_birds <- paste0("Niche percent change RANGE BIRDS: ", paste(range(niche_diff_df_birds$percent_change), collapse = " – "))
+
+values <- c(ns_area, 
+            ns_niche,
+            area_percent_change_range,
+            niche_percent_change_range,
+            area_percent_change_median_mammals,
+            niche_percent_change_median_mammals,
+            niche_percent_change_range_mammals,
+            niche_percent_change_mean_mammals,
+            area_percent_change_median_birds,
+            niche_percent_change_median_birds,
+            niche_percent_change_mean_birds,
+            niche_change_range_range_birds,
+            area_diff_km_range_mammals,
+            area_diff_km_range_birds,
+            niche_percent_change_median_all,
+            niche_percent_change_mean_all,
+            niche_percent_change_range_range_all)
+
+writeLines(values, file.path(.outPF, "figure4_summary.txt"), sep = "\n", useBytes = TRUE)
