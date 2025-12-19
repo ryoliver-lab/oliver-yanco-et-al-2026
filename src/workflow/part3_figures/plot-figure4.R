@@ -8,8 +8,8 @@ library(janitor)
 
 rm(list = ls())
 .wd <- getwd()
-.datPF <- file.path(.wd, "out/osf")
-.outPF <- file.path(.wd, "out/osf")
+.datPF <- file.path(.wd, "out/osf/final")
+.outPF <- file.path(.wd, "out/osf/final")
 
 ### select species to include in figure 4
 
@@ -198,7 +198,7 @@ p2 <- ggplot(data = niche_diff) +
 p <- p1/p2 +
   plot_layout(heights = c(1.85,1.15))
 
-ggsave(file.path(.outPF, "fig4.pdf"), height = 70, width = 90, units = "mm")
+ggsave(file.path(.outPF, "fig4.pdf"), height = 70, width = 120, units = "mm")
 
 ### data summaries
 
