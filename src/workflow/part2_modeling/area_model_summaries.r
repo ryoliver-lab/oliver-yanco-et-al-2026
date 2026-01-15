@@ -6,9 +6,8 @@
 #---- Input Parameters ----#
 if(interactive()) {
   
-  .wd <- ""
-  .datP <- file.path(.wd,'')
-  .dbPF <- file.path('')
+  .wd <- getwd()
+  .datP <- file.path(.wd,'out/single_species_models_final')
 
 } else {
 
@@ -152,29 +151,29 @@ for(i in 1:length(int_modlist_full)){
 
         #---- Assemble Plots ---#
         
-         # A = caption
-        # B = param table
-        # c = ppdens & pperr
-        # trace plots (need 2 rows so not vertically squished)
+        # A = param table
+        # B/C = ppdens & pperr
+        # D = trace plots (need 2 rows so not vertically squished)
+        # E = caption
         
         # Design layout
         design <- "AAAAAA
-                   BBBBBB
-                   CCCDDD
-                   EEEEEE
+                   BBBCCC
+                   DDDDDD
+                   DDDDDD
                    EEEEEE
                    ######
                    ######"
 
         # Gather plots
-        (model_out <- wrap_elements(caption_plot+
-                                    wrap_elements(full = param_table) + ggtitle("Model Coefficient Table") +
+        (model_out <- wrap_elements(wrap_elements(full = param_table) + ggtitle("Model Coefficient Table") +
                                     pp_dens+pp_err+
                                     trace+
+                                    caption_plot+
                                     plot_layout(design = design)))
 
         # Write out plot
-        ggsave(model_out, filename = glue(.wd, "out/model_diagnostics/area/{sp}.pdf"), 
+        ggsave(model_out, filename = glue(.wd, "/out/model_diagnostics_final/area/{sp}.pdf"), 
                width = 10, height = 20, device = cairo_pdf)
         
       } # if add model is not NULL
@@ -237,22 +236,22 @@ for(i in 1:length(int_modlist_full)){
       
       # Design layout
       design <- "AAAAAA
-                BBBBBB
-                CCCDDD
-                EEEEEE
-                EEEEEE
-                ######
-                ######"
+                 BBBCCC
+                 DDDDDD
+                 DDDDDD
+                 EEEEEE
+                 ######
+                 ######"
 
       # Gather plots
-      (model_out <- wrap_elements(caption_plot+
-                                  wrap_elements(full = param_table) + ggtitle("Model Coefficient Table") +
+      (model_out <- wrap_elements(wrap_elements(full = param_table) + ggtitle("Model Coefficient Table") +
                                   pp_dens+pp_err+
                                   trace+
+                                  caption_plot+
                                   plot_layout(design = design)))
 
       # Write out plot
-      ggsave(model_out, filename = glue(.wd, "out/model_diagnostics/area/{sp}.pdf"), 
+      ggsave(model_out, filename = glue(.wd, "/out/model_diagnostics_final/area/{sp}.pdf"), 
               width = 10, height = 20, device = cairo_pdf)
       
     } # else collect the interactions
